@@ -5,7 +5,7 @@
     "buildCommand": "dotnet publish TaskMasterAPI/TaskMasterAPI.csproj -c Release -o out"
   },
   "deploy": {
-    "startCommand": "dotnet out/TaskMasterAPI.dll",
+    "startCommand": "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet out/TaskMasterAPI.dll",
     "restartPolicyType": "ON_FAILURE"
   }
 }
