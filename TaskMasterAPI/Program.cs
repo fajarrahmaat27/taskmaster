@@ -37,8 +37,19 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
+// ✅ Convert Railway postgres:// URL to Npgsql format
+var databaseUrl = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (databaseUrl != null && databaseUrl.StartsWith("postgres://"))
+{
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+    databaseUrl = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(databaseUrl));
 
 builder.Services.AddCors(options =>
 {
@@ -46,7 +57,7 @@ builder.Services.AddCors(options =>
         policy => policy
             .WithOrigins(
                 "http://localhost:5173",
-                "http://localhost:5174"  // ✅ added
+                "http://localhost:5174"
             )
             .AllowAnyMethod()
             .AllowAnyHeader());
