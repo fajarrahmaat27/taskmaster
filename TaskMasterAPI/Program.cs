@@ -63,6 +63,19 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader());
 });
 
+// ✅ Read JWT config with fallback to env vars
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? Environment.GetEnvironmentVariable("Jwt__Key")
+    ?? throw new Exception("JWT Key is missing!");
+
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+    ?? Environment.GetEnvironmentVariable("Jwt__Issuer")
+    ?? "taskmaster-api";
+
+var jwtAudience = builder.Configuration["Jwt:Audience"]
+    ?? Environment.GetEnvironmentVariable("Jwt__Audience")
+    ?? "taskmaster-app";
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -72,10 +85,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+                Encoding.UTF8.GetBytes(jwtKey))
         };
     });
 
@@ -84,15 +97,23 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// ✅ Swagger enabled always so we can test on production
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("AllowReact");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
+// ✅ Wrap in try-catch to expose real startup errors
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("STARTUP ERROR: " + ex.Message);
+    Console.WriteLine(ex.StackTrace);
+    throw;
+}
