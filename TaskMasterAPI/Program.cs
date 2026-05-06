@@ -37,7 +37,6 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
-// ✅ Convert Railway postgres:// URL to Npgsql format
 var databaseUrl = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -55,17 +54,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact",
         policy => policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "https://taskmaster-flax-delta.vercel.app",
-                "https://taskmaster-e8xxfgmzd-fajar-rahmats-projects.vercel.app"
+            .SetIsOriginAllowed(origin =>
+                origin.Contains("localhost") ||
+                origin.Contains("vercel.app") ||
+                origin.Contains("railway.app")
             )
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
 
-// ✅ Read JWT config with fallback to env vars
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? Environment.GetEnvironmentVariable("Jwt__Key")
     ?? throw new Exception("JWT Key is missing!");
@@ -99,7 +96,6 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
-// ✅ Swagger enabled always so we can test on production
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -108,7 +104,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// ✅ Wrap in try-catch to expose real startup errors
 try
 {
     app.Run();
