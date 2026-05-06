@@ -58,7 +58,8 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:5173",
                 "http://localhost:5174",
-                "https://YOUR-APP.vercel.app"  // ← replace with your real Vercel URL
+                "https://taskmaster-flax-delta.vercel.app",
+                "https://taskmaster-e8xxfgmzd-fajar-rahmats-projects.vercel.app"
             )
             .AllowAnyMethod()
             .AllowAnyHeader());
