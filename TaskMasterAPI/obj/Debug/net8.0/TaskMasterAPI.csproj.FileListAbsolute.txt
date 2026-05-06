@@ -112,3 +112,4 @@
 /home/fajarrahmat/TaskMasterAPI/TaskMasterAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 /home/fajarrahmat/TaskMasterAPI/TaskMasterAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
 /home/fajarrahmat/TaskMasterAPI/TaskMasterAPI/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
+/home/fajarrahmat/TaskMasterAPI/TaskMasterAPI/obj/Debug/net8.0/TaskMasterAPI.sourcelink.json
